@@ -8,9 +8,14 @@ import java.util.Map.Entry;
 import java.io.*;
 
 /**
- * 
+ * Adds all of the words from the "document.txt" text file into the hash
+ * map. the entries in the hash map are then sorted to display the 20 most
+ * and least common words from the file.
  * 
  * Assumptions/Restrictions: 
+ * - I assume that you only need to sort once to get the 20 most nad least
+ * common words.
+ * - I assume that I can use java provided sorting algorithms.
  * 
  * Noteworthy Features: 
  * 
