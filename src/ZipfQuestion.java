@@ -169,7 +169,7 @@ public class ZipfQuestion {
             writer = new PrintWriter(file);
             // first row is all numbers
             for(int i = 0; i < sortedWordFreqs.size(); i++){
-                writer.write(((Integer)i).toString());
+                writer.write(((Integer)(i+1)).toString());
                 if(i < sortedWordFreqs.size() - 1)
                     writer.write(",");
                 else
