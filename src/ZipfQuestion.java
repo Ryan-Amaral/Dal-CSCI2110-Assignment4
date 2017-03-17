@@ -83,6 +83,15 @@ public class ZipfQuestion {
                     sortedWordFreqs.get(i).getValue().toString());
         }
         
+        // store the rank and frequency to a comma separated file.
+        // must do while descending sorted
+        try {
+            zipf.SaveWordFreqsToFile("WordFreqs", sortedWordFreqs);
+            System.out.println("\nSuccessfully save data to file.");
+        } catch (IOException e) {
+            System.out.println("Failed to save data to file.");
+        }
+        
         // the ascending sorted word frequencies
         sortedWordFreqs = zipf.getSortedWordFreq(textHash, true);
         
@@ -141,7 +150,6 @@ public class ZipfQuestion {
          * 
          * */
         
-        // store the rank and frequency to a comma separated file.
         
     }
     
@@ -150,17 +158,32 @@ public class ZipfQuestion {
      * to generate the graph.
      * @param fileName The name of the file to save to.
      * @param sortedWordFreqs The words and frequencies.
+     * @throws IOException 
      */
-    private void SaveWordFreqsToFile(String fileName, 
-            ArrayList<Entry<String, Integer>> sortedWordFreqs){
-        FileOutputStream ostream = null;
-        
+    public void SaveWordFreqsToFile(String fileName, 
+            ArrayList<Entry<String, Integer>> sortedWordFreqs) 
+                    throws IOException{
+        PrintWriter writer = null;
         try{
-            File file = new File("output/" + fileName + ".dot");
-            ostream = new FileOutputStream(file);
-            ostream.write(toDotString().getBytes());
+            File file = new File("resources/" + fileName + ".csv");
+            writer = new PrintWriter(file);
+            // first row is all numbers
+            for(int i = 0; i < sortedWordFreqs.size(); i++){
+                writer.write(((Integer)i).toString());
+                if(i < sortedWordFreqs.size() - 1)
+                    writer.write(",");
+                else
+                    writer.write("\n");
+            }
+            // second row is all frequencies
+            for(int i = 0; i < sortedWordFreqs.size(); i++){
+                writer.write(sortedWordFreqs.get(i).getValue().toString());
+                if(i < sortedWordFreqs.size() - 1)
+                    writer.write(",");
+            }
         }finally{
-            ostream.close();
+            if(writer != null)
+                writer.close();
         }
     }
     
@@ -171,7 +194,7 @@ public class ZipfQuestion {
      * @param ascending Whether to sort in ascending order.
      * @return An array list of the ordered entries from the HashMap.
      */
-    private ArrayList<Entry<String, Integer>> getSortedWordFreq(
+    public ArrayList<Entry<String, Integer>> getSortedWordFreq(
             HashMap<String, Integer> map, boolean ascending){
         // to store entries in list form
         ArrayList<Entry<String, Integer>> entriesList = 
