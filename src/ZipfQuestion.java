@@ -12,9 +12,7 @@ import java.io.*;
  * map. the entries in the hash map are then sorted to display the 20 most
  * and least common words from the file.
  * 
- * Assumptions/Restrictions: 
- * - I assume that you only need to sort once to get the 20 most nad least
- * common words.
+ * Assumptions/Restrictions:
  * - I assume that I can use java provided sorting algorithms.
  * 
  * Noteworthy Features: 
@@ -72,18 +70,21 @@ public class ZipfQuestion {
             textHash.put(textTokenized[i], newVal);
         }
         
-        // for some odd reason a single empty string gets through everytime
+        // for some odd reason a single empty string gets through every time
         textHash.remove("");
 
-        // the sorted word frequencies
-        ArrayList<Entry<String, Integer>> sortedWordFreqs = zipf.getSortedWordFreq(textHash);
+        // the descending sorted word frequencies
+        ArrayList<Entry<String, Integer>> sortedWordFreqs = zipf.getSortedWordFreq(textHash, false);
         
         // print top 20 words
         System.out.println("20 most frequent words: ");
-        for(int i = sortedWordFreqs.size()-1; i >= sortedWordFreqs.size() - 20; i--){
+        for(int i = 0; i < 20; i++){
             System.out.println(sortedWordFreqs.get(i).getKey() + ": " + 
                     sortedWordFreqs.get(i).getValue().toString());
         }
+        
+        // the ascending sorted word frequencies
+        sortedWordFreqs = zipf.getSortedWordFreq(textHash, true);
         
         // print lowest 20 words
         System.out.println("\n20 least frequent words: ");
@@ -140,14 +141,38 @@ public class ZipfQuestion {
          * 
          * */
         
+        // store the rank and frequency to a comma separated file.
+        
     }
     
     /**
-     * Sorts the <String, Integer> HashMap entries in ascending order.
-     * @param map The HashMap to sort from. Must be <String, Integer>.
-     * @return An array list of ascending order of the entries in the HashMap.
+     * Saves the sorted word frequencies to a text file that will be used
+     * to generate the graph.
+     * @param fileName The name of the file to save to.
+     * @param sortedWordFreqs The words and frequencies.
      */
-    public ArrayList<Entry<String, Integer>> getSortedWordFreq(HashMap<String, Integer> map){
+    private void SaveWordFreqsToFile(String fileName, 
+            ArrayList<Entry<String, Integer>> sortedWordFreqs){
+        FileOutputStream ostream = null;
+        
+        try{
+            File file = new File("output/" + fileName + ".dot");
+            ostream = new FileOutputStream(file);
+            ostream.write(toDotString().getBytes());
+        }finally{
+            ostream.close();
+        }
+    }
+    
+    /**
+     * Sorts the <String, Integer> HashMap entries in ascending or 
+     * descending order.
+     * @param map The HashMap to sort from. Must be <String, Integer>.
+     * @param ascending Whether to sort in ascending order.
+     * @return An array list of the ordered entries from the HashMap.
+     */
+    private ArrayList<Entry<String, Integer>> getSortedWordFreq(
+            HashMap<String, Integer> map, boolean ascending){
         // to store entries in list form
         ArrayList<Entry<String, Integer>> entriesList = 
                 new ArrayList<Entry<String, Integer>>(map.entrySet());
@@ -156,7 +181,10 @@ public class ZipfQuestion {
         Collections.sort(entriesList, new Comparator<Entry<String, Integer>>(){
             @Override
             public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
-                return o1.getValue().compareTo(o2.getValue());
+                if(ascending)
+                    return o1.getValue().compareTo(o2.getValue());
+                else
+                    return o2.getValue().compareTo(o1.getValue());
             }
             
         });
