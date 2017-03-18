@@ -13,9 +13,8 @@ import java.io.*;
  * and least common words from the file.
  * 
  * Assumptions/Restrictions:
- * - I assume that I can use java provided sorting algorithms.
  * 
- * Noteworthy Features: 
+ * Noteworthy Features: Used my own merge sort implementation.
  * 
  * @author Ryan Amaral
  *
@@ -84,6 +83,13 @@ public class ZipfQuestion {
                     sortedWordFreqs.get(i).getValue().toString());
         }
         
+        /*// test to check if my sort works, it passed
+        for(int i = 0; i < sortedWordFreqs.size() - 1; i++){
+            if(sortedWordFreqs.get(i).getValue().intValue() < sortedWordFreqs.get(i+1).getValue().intValue()){
+                System.out.println("Sorting is broken"); // wont be printed
+            }
+        }*/
+        
         // store the rank and frequency to a comma separated file.
         // must do while descending sorted
         try {
@@ -102,6 +108,13 @@ public class ZipfQuestion {
             System.out.println(sortedWordFreqs.get(i).getKey() + ": " + 
                     sortedWordFreqs.get(i).getValue().toString());
         }
+        
+        /*// test to check if my sort works, it passed
+        for(int i = 0; i < sortedWordFreqs.size() - 1; i++){
+            if(sortedWordFreqs.get(i).getValue().intValue() > sortedWordFreqs.get(i+1).getValue().intValue()){
+                System.out.println("Sorting is broken"); // wont be printed
+            }
+        }*/
         
         /* Results:
          * 
@@ -128,26 +141,26 @@ public class ZipfQuestion {
             protein: 734
             
            20 least frequent words: 
-            nicely: 1
-            shooting: 1
-            hall: 1
-            naturalized: 1
-            pretend: 1
-            wreck: 1
-            morton: 1
-            investment: 1
-            vegetarianism: 1
-            cds: 1
-            rounded: 1
-            hang: 1
-            fontana: 1
-            transitional: 1
-            dieticians: 1
-            resuscitation: 1
-            gripping: 1
-            q: 1
-            readers: 1
-            obvious: 1
+            misinterpreted: 1
+            feedings: 1
+            furumoto: 1
+            bites: 1
+            distracted: 1
+            satisfy: 1
+            surya: 1
+            grundhauser: 1
+            projected: 1
+            deliterious: 1
+            pickled: 1
+            tuna: 1
+            nicolini: 1
+            isometric: 1
+            teachable: 1
+            taylor: 1
+            versa: 1
+            escalate: 1
+            begun: 1
+            filter: 1
          * 
          * */
         
@@ -196,18 +209,19 @@ public class ZipfQuestion {
      */
     public ArrayList<Entry<String, Integer>> mergeSortEntries(
             HashMap<String, Integer> data, boolean ascending){
-        // intitial data
+        // initial data
         ArrayList<Entry<String, Integer>> data1 = 
                 new ArrayList<Entry<String, Integer>>(data.entrySet());
         // copy of data
         ArrayList<Entry<String, Integer>> data2 = 
                 new ArrayList<Entry<String, Integer>>(data1);
         // run inner merge sort function with needed data
-        mergeSortEntriesInner(data1, data2, 0, data.size(), ascending, 1);
+        mergeSortEntriesInner(data1, data2, 0, data1.size(), ascending, 1);
         return data2; // return the now sorted data
     }
     
     /**
+     * Inner function to keep interface more neat for calling the method.
      * @param dataIn The input data to be merged.
      * @param dataOut The list to output sorted data to.
      * @param start The start index.
@@ -225,10 +239,10 @@ public class ZipfQuestion {
         if(end - start > 1){
             // split left half recursively
             mergeSortEntriesInner(data1, data2, start, middle,
-                    ascending, (++parity)%2);
+                    ascending, (parity+1)%2);
             // split right half recursively
             mergeSortEntriesInner(data1, data2, middle, end, 
-                    ascending, (parity)%2);
+                    ascending, (parity+1)%2);
         
             // merge halves
             // for parity of 0, take from data 2, put into data 1
@@ -279,8 +293,8 @@ public class ZipfQuestion {
         Entry<String, Integer> insertData = null; // data to put in dataOut
         while(indexInsert < end){
             // cur element in left half is smaller
-            if(dataIn.get(indexL).getValue() < dataIn.get(indexR).getValue()
-                    && indexR < end){
+            if(indexR < end && dataIn.get(indexL).getValue().intValue() 
+                    < dataIn.get(indexR).getValue().intValue() ){
                 // left index still in range
                 if(indexL < middle){
                     insertData = dataIn.get(indexL);
@@ -293,14 +307,8 @@ public class ZipfQuestion {
                 
             }else if(indexR < end){ // element in right is smaller
                 // right index still in range
-                if(indexR < end){
-                    insertData = dataIn.get(indexR);
-                    indexR++;
-                }
-                else{ // put in element from left
-                    insertData = dataIn.get(indexL);
-                    indexL++;
-                }
+                insertData = dataIn.get(indexR);
+                indexR++;
             }
             else{ // r out of bound, definately left
                 insertData = dataIn.get(indexL);
@@ -330,8 +338,8 @@ public class ZipfQuestion {
         Entry<String, Integer> insertData = null; // data to put in dataOut
         while(indexInsert < end){
             // cur element in left half is bigger
-            if(dataIn.get(indexL).getValue() >= dataIn.get(indexR).getValue()
-                    && indexR < end){
+            if(indexR < end && dataIn.get(indexL).getValue().intValue()  
+                    >= dataIn.get(indexR).getValue().intValue() ){
                 // left index still in range
                 if(indexL < middle){
                     insertData = dataIn.get(indexL);
@@ -344,14 +352,8 @@ public class ZipfQuestion {
                 
             }else if(indexR < end){ // right is bigger
                 // right index still in range
-                if(indexR < end){
-                    insertData = dataIn.get(indexR);
-                    indexR++;
-                }
-                else{ // put in element from left
-                    insertData = dataIn.get(indexL);
-                    indexL++;
-                }
+                insertData = dataIn.get(indexR);
+                indexR++;
             }
             else{ // r out of bound, definately left
                 insertData = dataIn.get(indexL);
