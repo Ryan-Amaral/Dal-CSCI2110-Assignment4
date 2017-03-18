@@ -74,7 +74,8 @@ public class ZipfQuestion {
         textHash.remove("");
 
         // the descending sorted word frequencies
-        ArrayList<Entry<String, Integer>> sortedWordFreqs = zipf.getSortedWordFreq(textHash, false);
+        ArrayList<Entry<String, Integer>> sortedWordFreqs = 
+                zipf.mergeSortEntries(textHash, false);
         
         // print top 20 words
         System.out.println("20 most frequent words: ");
@@ -93,7 +94,7 @@ public class ZipfQuestion {
         }
         
         // the ascending sorted word frequencies
-        sortedWordFreqs = zipf.getSortedWordFreq(textHash, true);
+        sortedWordFreqs = zipf.mergeSortEntries(textHash, true);
         
         // print lowest 20 words
         System.out.println("\n20 least frequent words: ");
@@ -184,6 +185,180 @@ public class ZipfQuestion {
         }finally{
             if(writer != null)
                 writer.close();
+        }
+    }
+    
+    /**
+     * Sorts data in ascending order.
+     * @param data The data to be sorted.
+     * @param ascending Whether to sort in ascending order.
+     * @return The sorted list.
+     */
+    public ArrayList<Entry<String, Integer>> mergeSortEntries(
+            HashMap<String, Integer> data, boolean ascending){
+        // intitial data
+        ArrayList<Entry<String, Integer>> data1 = 
+                new ArrayList<Entry<String, Integer>>(data.entrySet());
+        // copy of data
+        ArrayList<Entry<String, Integer>> data2 = 
+                new ArrayList<Entry<String, Integer>>(data1);
+        // run inner merge sort function with needed data
+        mergeSortEntriesInner(data1, data2, 0, data.size(), ascending, 1);
+        return data2; // return the now sorted data
+    }
+    
+    /**
+     * @param dataIn The input data to be merged.
+     * @param dataOut The list to output sorted data to.
+     * @param start The start index.
+     * @param end The end index.
+     * @param ascending Whether to sort ascending.
+     * @param parity Determines what list to treat as input and what list
+     * to treat as output when merging.
+     */
+    private void mergeSortEntriesInner(
+            ArrayList<Entry<String, Integer>> data1, 
+            ArrayList<Entry<String, Integer>> data2, 
+            int start, int end, boolean ascending, int parity){
+        int middle = (start + end) / 2;
+        // only do if at-least 2 elements
+        if(end - start > 1){
+            // split left half recursively
+            mergeSortEntriesInner(data1, data2, start, middle,
+                    ascending, (++parity)%2);
+            // split right half recursively
+            mergeSortEntriesInner(data1, data2, middle, end, 
+                    ascending, (parity)%2);
+        
+            // merge halves
+            // for parity of 0, take from data 2, put into data 1
+            // for parity of 1, take from data 1, put into data 2
+            if(parity == 0)
+                mergeEntries(data2, data1, start, end, ascending);
+            else
+                mergeEntries(data1, data2, start, end, ascending);
+        }
+    }
+    
+    /**
+     * Takes data from dataIn and calls the proper sorting method based 
+     * on whether ascending or descending is wanted, and puts the sorted
+     * data into dataOut. 
+     * @param dataIn The input data to be merged.
+     * @param dataOut The list to output sorted data to.
+     * @param start The start index.
+     * @param end The end index.
+     * @param ascending Whether to sort ascending.
+     */
+    private void mergeEntries(
+            ArrayList<Entry<String, Integer>> dataIn, 
+            ArrayList<Entry<String, Integer>> dataOut, 
+            int start, int end, boolean ascending){
+        if(ascending)
+            mergeAscending(dataIn, dataOut, start, end);
+        else
+            mergeDescending(dataIn, dataOut, start, end);
+    }
+    
+    /**
+     * Splits the list dataIn in half, then merges the two halves together
+     * into dataOut in ascending order.
+     * @param dataIn The input data to be merged.
+     * @param dataOut The list to output sorted data to.
+     * @param start The start index.
+     * @param end The end index.
+     */
+    private void mergeAscending(
+            ArrayList<Entry<String, Integer>> dataIn, 
+            ArrayList<Entry<String, Integer>> dataOut, 
+            int start, int end){
+        int middle = (start + end) / 2;
+        int indexL = start; // goes until middle
+        int indexR = middle; // goes until end
+        int indexInsert = start; // the index to insert into in dataOut
+        Entry<String, Integer> insertData = null; // data to put in dataOut
+        while(indexInsert < end){
+            // cur element in left half is smaller
+            if(dataIn.get(indexL).getValue() < dataIn.get(indexR).getValue()
+                    && indexR < end){
+                // left index still in range
+                if(indexL < middle){
+                    insertData = dataIn.get(indexL);
+                    indexL++;
+                }
+                else{ // put in element from right
+                    insertData = dataIn.get(indexR);
+                    indexR++;
+                }
+                
+            }else if(indexR < end){ // element in right is smaller
+                // right index still in range
+                if(indexR < end){
+                    insertData = dataIn.get(indexR);
+                    indexR++;
+                }
+                else{ // put in element from left
+                    insertData = dataIn.get(indexL);
+                    indexL++;
+                }
+            }
+            else{ // r out of bound, definately left
+                insertData = dataIn.get(indexL);
+                indexL++;
+            }
+            // put in data and incement index
+            dataOut.set(indexInsert++, insertData);
+        }
+    }
+    
+    /**
+     * Splits the list dataIn in half, then merges the two halves together
+     * into dataOut in descending order.
+     * @param dataIn The input data to be merged.
+     * @param dataOut The list to output sorted data to.
+     * @param start The start index.
+     * @param end The end index.
+     */
+    private void mergeDescending(
+            ArrayList<Entry<String, Integer>> dataIn, 
+            ArrayList<Entry<String, Integer>> dataOut, 
+            int start, int end){
+        int middle = (start + end) / 2;
+        int indexL = start; // goes until middle
+        int indexR = middle; // goes until end
+        int indexInsert = start; // the index to insert into in dataOut
+        Entry<String, Integer> insertData = null; // data to put in dataOut
+        while(indexInsert < end){
+            // cur element in left half is bigger
+            if(dataIn.get(indexL).getValue() >= dataIn.get(indexR).getValue()
+                    && indexR < end){
+                // left index still in range
+                if(indexL < middle){
+                    insertData = dataIn.get(indexL);
+                    indexL++;
+                }
+                else{ // put in element from right
+                    insertData = dataIn.get(indexR);
+                    indexR++;
+                }
+                
+            }else if(indexR < end){ // right is bigger
+                // right index still in range
+                if(indexR < end){
+                    insertData = dataIn.get(indexR);
+                    indexR++;
+                }
+                else{ // put in element from left
+                    insertData = dataIn.get(indexL);
+                    indexL++;
+                }
+            }
+            else{ // r out of bound, definately left
+                insertData = dataIn.get(indexL);
+                indexL++;
+            }
+            // put in data and incement index
+            dataOut.set(indexInsert++, insertData);
         }
     }
     

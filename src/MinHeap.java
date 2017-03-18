@@ -8,8 +8,7 @@ import java.util.NoSuchElementException;
  * 
  * Based off of Heap.java provided by Sesh Venugopal.
  * 
- * Assumptions/Restrictions: 
- * - 
+ * Assumptions/Restrictions:
  * 
  * Noteworthy Features: 
  * 
@@ -26,7 +25,7 @@ public class MinHeap<T extends Comparable<T>> {
     private ArrayList<T> items;
     
     /**
-     * Helps with iteration by maintaining a point.
+     * Helps with iteration by maintaining a point in the array.
      */
     private int cursor;
     
